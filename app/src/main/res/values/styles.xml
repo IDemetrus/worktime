@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TimerClockText">
+        <item name="android:visibility">invisible</item>
+        <item name="android:textColor">@color/green_500</item>
+        <item name="android:textSize">@dimen/text_size_64</item>
+        <item name="fontFamily">@font/roboto</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TimerBtnStart">
+        <item name="android:width">@dimen/button_size_200</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/roboto</item>
+        <item name="android:textSize">@dimen/text_size_24</item>
+        <item name="cornerRadius">0dp</item>
+        <item name="backgroundTint">@color/green_500</item>
+    </style>
+    <style name="TimerBtnStop">
+        <item name="android:width">@dimen/button_size_200</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/roboto</item>
+        <item name="android:textSize">@dimen/text_size_24</item>
+        <item name="cornerRadius">0dp</item>
+        <item name="backgroundTint">@color/red_500</item>
+    </style>
+    <style name="TimePicker">
+        <item name="android:timePickerMode">spinner</item>
+        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:textSize">@dimen/text_size_48</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:colorPrimary">@color/grey_700</item>
+        <item name="android:colorPrimaryDark">@color/black</item>
+        <item name="android:colorAccent">@color/green_500</item>
+    </style>
+</resources>
