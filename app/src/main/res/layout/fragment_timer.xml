@@ -41,5 +41,16 @@
 
     <include layout="@layout/time_picker" />
 
+    <ImageButton
+        android:id="@+id/soundIb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#00FFFFFF"
+        android:src="@drawable/selector"
+        app:layout_constraintBottom_toBottomOf="@+id/timerBtnStop"
+        app:layout_constraintEnd_toStartOf="@+id/timerBtnStop"
+        app:layout_constraintStart_toEndOf="@+id/timerBtnStart"
+        app:layout_constraintTop_toTopOf="@+id/timerBtnStop" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

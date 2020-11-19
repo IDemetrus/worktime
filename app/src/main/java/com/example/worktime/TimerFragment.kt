@@ -2,7 +2,9 @@ package com.example.worktime
 
 import android.content.res.Resources
 import android.graphics.Color
+import android.media.AudioManager
 import android.media.MediaPlayer
+import android.media.SoundPool
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -12,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TimePicker
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.worktime.databinding.FragmentTimerBinding
 import java.text.SimpleDateFormat
@@ -32,14 +35,32 @@ class TimerFragment : Fragment() {
         val rootView = binding.root
 
         //Add media player
-        var mediaPlayer : MediaPlayer? = MediaPlayer.create(context, R.raw.beep)
-
+        var mediaPlayer : MediaPlayer? = null
 
         //Init timePicker
         val timePicker = rootView.findViewById<TimePicker>(R.id.timerTp)
         timePicker.setIs24HourView(true)
         timePicker.hour = 0
         timePicker.minute = 45
+
+        //Set sound for media player
+        Log.i("Time", "Sound button is: ${binding.soundIb.isPressed}")
+        //TODO check activation method and clear media player
+        binding.soundIb.setOnClickListener {
+            if (it.isActivated){
+                Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+                Log.i("Time", "Sound button is: ${it.isActivated}")
+                mediaPlayer = MediaPlayer.create(context, R.raw.beep)
+                it.isActivated = false
+            } else {
+                it.isActivated = true
+            }
+//            it.isPressed = false
+            Log.i("Time", "${it.isActivated}")
+
+
+        }
+        Log.i("Time", "Sound button is: ${binding.soundIb.isPressed}")
 
         //Set timer with start click method
         val simpleDateFormat = SimpleDateFormat("HH:mm:ss", Locale("RU"))
