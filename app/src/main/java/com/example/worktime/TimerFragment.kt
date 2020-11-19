@@ -1,5 +1,8 @@
 package com.example.worktime
 
+import android.content.res.Resources
+import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -18,7 +21,7 @@ class TimerFragment : Fragment() {
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
-    private lateinit var timer: CountDownTimer
+    private var timer: CountDownTimer? = null
 
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -27,6 +30,10 @@ class TimerFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentTimerBinding.inflate(inflater,container,false)
         val rootView = binding.root
+
+        //Add media player
+        var mediaPlayer : MediaPlayer? = MediaPlayer.create(context, R.raw.beep)
+
 
         //Init timePicker
         val timePicker = rootView.findViewById<TimePicker>(R.id.timerTp)
@@ -47,6 +54,13 @@ class TimerFragment : Fragment() {
                 timer = object : CountDownTimer(getLong(timePicker.hour.toString(),
                     timePicker.minute.toString()),1000){
                     override fun onTick(millisUntilFinished: Long) {
+                        //Color changes before 1 min timer off
+                        if (millisUntilFinished < 60000){
+                            binding.timerTv.setTextColor(Color.BLACK)
+                            if(millisUntilFinished < 10000){
+                                binding.timerTv.setTextColor(Color.RED)
+                            }
+                        }
                         Log.i("TimerFragment", simpleDateFormat.format(millisUntilFinished))
                         binding.timerTv.visibility = View.VISIBLE
                         timePicker.visibility = View.INVISIBLE
@@ -56,10 +70,15 @@ class TimerFragment : Fragment() {
 
                     override fun onFinish() {
                         Log.i("TimerFragment", "Timer: Finished")
+                        binding.timerTv.text = getString(R.string.timer_off)
+                        //TODO add play sound
+//                        mediaPlayer?.isLooping = true
+                        mediaPlayer?.start()
+
                     }
                 }.start()
             } else {
-                timer.cancel()
+                timer?.cancel()
                 //TODO add last timer time to start new* after pause
             }
 
@@ -69,7 +88,9 @@ class TimerFragment : Fragment() {
             binding.timerTv.visibility = View.INVISIBLE
             timePicker.visibility = View.VISIBLE
             binding.timerBtnStart.text = getString(R.string.start_btn)
-            timer.cancel()
+            timer?.cancel()
+            mediaPlayer?.stop()
+            mediaPlayer = null
         }
 
 
