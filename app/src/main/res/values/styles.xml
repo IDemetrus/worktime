@@ -3,6 +3,7 @@
     <style name="TimerClockText">
         <item name="android:visibility">invisible</item>
         <item name="android:textColor">@color/green_500</item>
+        <item name="minWidth">@dimen/width_240</item>
         <item name="android:textSize">@dimen/text_size_64</item>
         <item name="fontFamily">@font/roboto</item>
         <item name="android:textStyle">bold</item>
@@ -31,5 +32,12 @@
         <item name="android:colorPrimary">@color/grey_700</item>
         <item name="android:colorPrimaryDark">@color/black</item>
         <item name="android:colorAccent">@color/green_500</item>
+    </style>
+
+    <style name="TimerTime">
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/roboto</item>
+        <item name="android:textSize">@dimen/text_size_20</item>
+        <item name="android:textColor">@color/grey_700</item>
     </style>
 </resources>

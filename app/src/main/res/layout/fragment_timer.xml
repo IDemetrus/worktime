@@ -39,7 +39,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <include layout="@layout/time_picker" />
+    <TimePicker
+        android:id="@+id/timerTp"
+        style="@style/TimePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:theme="@style/TimePicker"
+        android:timePickerMode="spinner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    </TimePicker>
 
     <ImageButton
         android:id="@+id/soundIb"
@@ -51,6 +63,26 @@
         app:layout_constraintEnd_toStartOf="@+id/timerBtnStop"
         app:layout_constraintStart_toEndOf="@+id/timerBtnStart"
         app:layout_constraintTop_toTopOf="@+id/timerBtnStop" />
+
+    <TextView
+        android:id="@+id/timerHourTv"
+        style="@style/TimerTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/timer_hour"
+        app:layout_constraintBottom_toBottomOf="@+id/timerTp"
+        app:layout_constraintEnd_toStartOf="@+id/timerTp"
+        app:layout_constraintTop_toTopOf="@+id/timerTp" />
+
+    <TextView
+        android:id="@+id/timerMinuteTv"
+        style="@style/TimerTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/timer_minute"
+        app:layout_constraintBottom_toBottomOf="@+id/timerTp"
+        app:layout_constraintStart_toEndOf="@+id/timerTp"
+        app:layout_constraintTop_toTopOf="@+id/timerTp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

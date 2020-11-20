@@ -17,6 +17,7 @@ import android.widget.TimePicker
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.worktime.databinding.FragmentTimerBinding
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,55 +39,70 @@ class TimerFragment : Fragment() {
         var mediaPlayer : MediaPlayer? = null
 
         //Init timePicker
-        val timePicker = rootView.findViewById<TimePicker>(R.id.timerTp)
+        val timePicker = binding.timerTp
         timePicker.setIs24HourView(true)
         timePicker.hour = 0
         timePicker.minute = 45
 
         //Set sound for media player
-        Log.i("Time", "Sound button is: ${binding.soundIb.isPressed}")
-        //TODO check activation method and clear media player
+        Log.i("Time", "Sound button is: ${binding.soundIb.isActivated}")
+        binding.soundIb.isActivated = true
         binding.soundIb.setOnClickListener {
             if (it.isActivated){
                 Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
                 Log.i("Time", "Sound button is: ${it.isActivated}")
-                mediaPlayer = MediaPlayer.create(context, R.raw.beep)
                 it.isActivated = false
             } else {
                 it.isActivated = true
+                Log.i("Time", "Sound button is: ${it.isActivated}")
             }
-//            it.isPressed = false
             Log.i("Time", "${it.isActivated}")
 
 
         }
-        Log.i("Time", "Sound button is: ${binding.soundIb.isPressed}")
+        mediaPlayer = if (binding.soundIb.isActivated) {
+            MediaPlayer.create(context, R.raw.beep)
+        } else {
+            mediaPlayer?.release()
+            null
+        }
+        Log.i("Time", "Sound button is: ${binding.soundIb.isActivated}")
 
         //Set timer with start click method
-        val simpleDateFormat = SimpleDateFormat("HH:mm:ss", Locale("RU"))
-        binding.timerBtnStart.setOnClickListener {
+        val simpleDateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        simpleDateFormat.timeZone = TimeZone.getTimeZone("UTC")
 
+//        val dateFormat = DateFormat.getDateInstance()
+//        dateFormat.timeZone = TimeZone.getDefault()
+        binding.timerBtnStart.setOnClickListener {
+            binding.timerHourTv.visibility = View.GONE
+            binding.timerMinuteTv.visibility = View.GONE
 
             //Changes button text
             if (binding.timerBtnStart.text == getString(R.string.start_btn)){
                 binding.timerBtnStart.text = getString(R.string.pause_btn)
 
-                //Init CountDownTimer as "cDt"
+                mediaPlayer = if (binding.soundIb.isActivated) {
+                    MediaPlayer.create(context, R.raw.beep)
+                } else {
+                    mediaPlayer?.release()
+                    null
+                }
+
                 timer = object : CountDownTimer(getLong(timePicker.hour.toString(),
                     timePicker.minute.toString()),1000){
                     override fun onTick(millisUntilFinished: Long) {
-                        //Color changes before 1 min timer off
+                        //Color changes before 1 min and 10 seconds timer off
                         if (millisUntilFinished < 60000){
                             binding.timerTv.setTextColor(Color.BLACK)
                             if(millisUntilFinished < 10000){
                                 binding.timerTv.setTextColor(Color.RED)
                             }
                         }
-                        Log.i("TimerFragment", simpleDateFormat.format(millisUntilFinished))
+                        Log.i("TimerFragment", simpleDateFormat.format((millisUntilFinished)))
                         binding.timerTv.visibility = View.VISIBLE
                         timePicker.visibility = View.INVISIBLE
-                        //TODO change date to System date
-                        binding.timerTv.text = simpleDateFormat.format(millisUntilFinished-(3*3600*1000))
+                        binding.timerTv.text = simpleDateFormat.format(millisUntilFinished)
                     }
 
                     override fun onFinish() {
@@ -106,7 +122,11 @@ class TimerFragment : Fragment() {
         }
         binding.timerBtnStop.setOnClickListener {
             Log.i("TimerFragment", "Timer: Stopped")
-            binding.timerTv.visibility = View.INVISIBLE
+
+            binding.timerHourTv.visibility = View.VISIBLE
+            binding.timerMinuteTv.visibility = View.VISIBLE
+
+            binding.timerTv.visibility = View.GONE
             timePicker.visibility = View.VISIBLE
             binding.timerBtnStart.text = getString(R.string.start_btn)
             timer?.cancel()
