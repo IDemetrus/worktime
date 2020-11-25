@@ -1,19 +1,27 @@
 package com.example.worktime
 
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.worktime.databinding.FragmentTimerBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,6 +34,8 @@ class TimerFragment : Fragment() {
     private var timer: CountDownTimer? = null
     private var isRunning = false
     private var lastTime: Long = 0L
+
+    private var notification: NotificationCompat.Builder? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreateView(
@@ -96,11 +106,23 @@ class TimerFragment : Fragment() {
             Log.i(mTAG, "-> Stop button is: Clicked")
             stopTimer()
             timer = null
-            timerViewModel.setTime(getLong(timePicker.hour,timePicker.minute))
+            timerViewModel.setTime(getLong(timePicker.hour, timePicker.minute))
             timerViewModel.setStatus(false)
             setViewOnStop()
         }
 
+
+        val intent = Intent(requireContext(), MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+        val pendingIntent =
+            PendingIntent.getActivity(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        notification = NotificationCompat.Builder(requireContext(), "1")
+            .setSmallIcon(R.drawable.ic_timer_24)
+            .setAutoCancel(true)
+            .setContentTitle(binding.timerTv.text)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
 
 
@@ -181,7 +203,7 @@ class TimerFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        Log.i(mTAG,"-> onStop")
+        Log.i(mTAG, "-> onStop")
         stopTimer()
         timer = null
         Log.i(mTAG, "-> lastTime: $lastTime")
@@ -190,16 +212,38 @@ class TimerFragment : Fragment() {
         val currentTime = System.currentTimeMillis()
         Log.i(mTAG, "-> elapsedTime: ${sdf.format(currentTime)}")
 
-        if (isRunning){
+        if (isRunning) {
             val prevTime = timerViewModel.lastTime.value ?: lastTime
             lastTime = prevTime + currentTime
+
+
+        //TODO: -> Set up timer on notification
+            with(NotificationManagerCompat.from(requireContext())) {
+                notify(1, notification!!.build())
+            }
+            //Notification
+            val bgTimer = object: CountDownTimer(60000,1000){
+                override fun onTick(millisUntilFinished: Long) {
+                    Log.i(mTAG, "-> onTick: ${formatTime(millisUntilFinished)}")
+                    notification?.setContentTitle(formatTime(millisUntilFinished))
+                }
+
+                override fun onFinish() {
+                    val intent = Intent(requireContext(),MainActivity::class.java)
+                        .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    startActivity(intent)
+                    cancel()
+                }
+            }.start()
+
         }
+
 
     }
 
     override fun onPause() {
         super.onPause()
-        Log.i(mTAG,"-> onPause")
+        Log.i(mTAG, "-> onPause")
     }
 
 
