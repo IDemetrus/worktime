@@ -1,9 +1,8 @@
 package com.example.worktime
 
-import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
@@ -19,9 +18,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.worktime.databinding.FragmentTimerBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,6 +32,8 @@ class TimerFragment : Fragment() {
     private var lastTime: Long = 0L
 
     private var notification: NotificationCompat.Builder? = null
+    private var mediaPlayer: MediaPlayer? = null
+
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreateView(
@@ -50,7 +48,6 @@ class TimerFragment : Fragment() {
         lastTime = timerViewModel.lastTime.value ?: lastTime
         isRunning = timerViewModel.isRunning.value ?: isRunning
 
-        var mediaPlayer: MediaPlayer? = null
 
         //Init timePicker
         val timePicker = binding.timerTp
@@ -66,6 +63,7 @@ class TimerFragment : Fragment() {
         timerViewModel.lastTime.observe(this, { long ->
             lastTime = long
             binding.timerTv.text = formatTime(long)
+            setTimerColor()
         })
         timerViewModel.isRunning.observe(this, { status ->
             isRunning = status
@@ -73,37 +71,47 @@ class TimerFragment : Fragment() {
 
         //TODO: -> Set up sound button
         //Set sound for media player
+        binding.soundIb.isActivated = timerViewModel.isSoundOn.value ?: true
         Log.i(mTAG, "Sound button is: ${binding.soundIb.isActivated}")
-        binding.soundIb.isActivated = true
         binding.soundIb.setOnClickListener {
             if (it.isActivated) {
                 Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+                if (mediaPlayer == null) mediaPlayer = MediaPlayer.create(context, R.raw.ship_bell)
                 Log.i(mTAG, "Sound button is: ${it.isActivated}")
                 it.isActivated = false
+                timerViewModel.setSound(false)
+
             } else {
+                mediaPlayer?.release()
+                mediaPlayer = null
                 it.isActivated = true
+                timerViewModel.setSound(true)
                 Log.i(mTAG, "Sound button is: ${it.isActivated}")
             }
             Log.i(mTAG, "${it.isActivated}")
-
-
         }
-        mediaPlayer = if (binding.soundIb.isActivated) {
-            MediaPlayer.create(context, R.raw.ship_bell)
-        } else {
-            mediaPlayer?.release()
-            null
+        if (mediaPlayer == null) {
+            mediaPlayer = if (binding.soundIb.isActivated) {
+
+                MediaPlayer.create(context, R.raw.ship_bell)
+            } else {
+                mediaPlayer?.release()
+                null
+            }
         }
         Log.i(mTAG, "Sound button is: ${binding.soundIb.isActivated}")
 
         binding.timerBtnStart.setOnClickListener {
             Log.i(mTAG, "-> Start button is: Clicked")
+            if (mediaPlayer == null && binding.soundIb.isActivated) mediaPlayer =
+                MediaPlayer.create(context, R.raw.ship_bell)
             startTimer()
             timerViewModel.setStatus(true)
             setViewOnStart()
         }
         binding.timerBtnStop.setOnClickListener {
             Log.i(mTAG, "-> Stop button is: Clicked")
+
             stopTimer()
             timer = null
             timerViewModel.setTime(getLong(timePicker.hour, timePicker.minute))
@@ -111,12 +119,16 @@ class TimerFragment : Fragment() {
             setViewOnStop()
         }
 
-
         val intent = Intent(requireContext(), MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
         val pendingIntent =
-            PendingIntent.getActivity(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getActivity(
+                requireContext(),
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
         notification = NotificationCompat.Builder(requireContext(), "1")
             .setSmallIcon(R.drawable.ic_timer_24)
             .setAutoCancel(true)
@@ -163,6 +175,10 @@ class TimerFragment : Fragment() {
                 override fun onFinish() {
                     Log.i(mTAG, "-> onFinish")
                     timerViewModel.setStatus(false)
+                    setTimerColor()
+                    //MediaPlayer if define -> start playing
+                    mediaPlayer?.isLooping = true
+                    mediaPlayer?.start()
                 }
             }.start()
         } else {
@@ -172,6 +188,15 @@ class TimerFragment : Fragment() {
 
     private fun stopTimer() {
         timer?.cancel()
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
+
+    private fun setTimerColor() {
+        if (lastTime == 0L) {
+            binding.timerTv.setTextColor(Color.RED)
+            binding.timerTv.text = getString(R.string.timer_off)
+        }
     }
 
     private fun setViewOnStart() {
@@ -194,6 +219,7 @@ class TimerFragment : Fragment() {
         Log.i(mTAG, "OnStart: -> lastTime: $lastTime")
         if (isRunning) {
             val currentTime = System.currentTimeMillis()
+            //TODO: -> Fix timer onFinish from background
             if (lastTime > currentTime)
                 lastTime -= currentTime
             startTimer()
@@ -217,34 +243,12 @@ class TimerFragment : Fragment() {
             lastTime = prevTime + currentTime
 
 
-        //TODO: -> Set up timer on notification
+            //TODO: -> Set up timer on notification
             with(NotificationManagerCompat.from(requireContext())) {
                 notify(1, notification!!.build())
             }
-            //Notification
-            val bgTimer = object: CountDownTimer(60000,1000){
-                override fun onTick(millisUntilFinished: Long) {
-                    Log.i(mTAG, "-> onTick: ${formatTime(millisUntilFinished)}")
-                    notification?.setContentTitle(formatTime(millisUntilFinished))
-                }
-
-                override fun onFinish() {
-                    val intent = Intent(requireContext(),MainActivity::class.java)
-                        .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    startActivity(intent)
-                    cancel()
-                }
-            }.start()
-
         }
 
-
     }
-
-    override fun onPause() {
-        super.onPause()
-        Log.i(mTAG, "-> onPause")
-    }
-
 
 }
