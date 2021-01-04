@@ -7,4 +7,6 @@
     <dimen name="text_size_64">64sp</dimen>
     <dimen name="button_size_200">140dp</dimen>
     <dimen name="width_240">320dp</dimen>
+    <dimen name="list_item_spacing">16dp</dimen>
+    <dimen name="list_item_spacing_half">8dp</dimen>
 </resources>
