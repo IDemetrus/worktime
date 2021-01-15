@@ -3,12 +3,16 @@ package com.example.worktime
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.worktime.databinding.BottomTimerBinding
@@ -17,12 +21,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.properties.Delegates
 
+private const val TAG = "TimerDialogFragment"
 
 class TimerDialogFragment : BottomSheetDialogFragment() {
 
     companion object {
 
-        private val mTAG = TimerDialogFragment::class.simpleName
         private var _binding: BottomTimerBinding? = null
         private val binding get() = _binding
         private lateinit var timerVM: TimerViewModel
@@ -42,10 +46,9 @@ class TimerDialogFragment : BottomSheetDialogFragment() {
 
         _binding = BottomTimerBinding.inflate(inflater, container, false)
         rootView = binding!!.root
-        timerVM = ViewModelProvider(this).get(TimerViewModel::class.java)
         initViewElements()
 
-        //Get last time
+        //Get layout params
 
         return rootView
     }
@@ -61,7 +64,6 @@ class TimerDialogFragment : BottomSheetDialogFragment() {
         startBtn = binding!!.btmStartBtn
         stopBtn = binding!!.btmStopBtn
         timerTv = binding!!.btmTimerTv
-
     }
 
     private fun setTimeTv(){
@@ -71,6 +73,16 @@ class TimerDialogFragment : BottomSheetDialogFragment() {
         val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         sdf.timeZone = TimeZone.getTimeZone("UTC")
         return sdf.format(timeMilli)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        val layout = rootView.findViewById(R.id.bottom_timer_id) as ConstraintLayout
+        val params : ViewGroup.LayoutParams = layout.layoutParams
+        layout.layoutParams = params
+
+        Log.d(TAG, "${params.height}")
     }
 
 }

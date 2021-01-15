@@ -21,19 +21,19 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private lateinit var binding: ActivityMainBinding
         private lateinit var toolbar: Toolbar
-        private var bottomFragment: TimerDialogFragment? = null
+        private var bottomFragment: TimerFragment? = null
         private lateinit var onSwipeTouchListener: OnSwipeTouchListener
+        
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i("[${this.javaClass}]", "-> [onCreate]")
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         //Define bottom dialog fragment, bottom swipe
-        bottomFragment = TimerDialogFragment()
+        bottomFragment = TimerFragment()
         onSwipeTouchListener = OnSwipeTouchListener(this, binding.root)
 
         //Toolbar

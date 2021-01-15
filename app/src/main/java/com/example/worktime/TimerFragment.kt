@@ -1,5 +1,6 @@
 package com.example.worktime
 
+import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -17,18 +18,22 @@ import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.FragmentContainer
 import com.example.worktime.databinding.FragmentTimerBinding
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TimerFragment : Fragment() {
+private const val TAG = "TimerFragment"
 
-    private val mTAG = TimerFragment::class.java.simpleName
+class TimerFragment : BottomSheetDialogFragment() {
 
     companion object {
         private var _binding: FragmentTimerBinding? = null
@@ -44,6 +49,7 @@ class TimerFragment : Fragment() {
         private var notification: NotificationCompat.Builder? = null
         private var mediaPlayer: MediaPlayer? = null
         private var isSoundActive: Boolean? = null
+        private lateinit var rootView: View
         private lateinit var timePicker: TimePicker
         private lateinit var timerTv: TextView
     }
@@ -55,7 +61,7 @@ class TimerFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentTimerBinding.inflate(inflater, container, false)
-        val rootView = binding.root
+        rootView = binding.root
 
         dialogFragment = TimerDialogFragment()
 
@@ -69,10 +75,10 @@ class TimerFragment : Fragment() {
 
         //Set sound for media player
         setSoundBtn()
-        Log.i(mTAG, "Sound button is: ${binding.soundIb.isActivated}")
+        Log.i(TAG, "Sound button is: ${binding.soundIb.isActivated}")
 
         binding.timerBtnStart.setOnClickListener {
-            Log.i(mTAG, "-> Start button is: Clicked")
+            Log.i(TAG, "-> Start button is: Clicked")
             dialogFragment.show(requireActivity().supportFragmentManager, dialogFragment.tag)
 
             if (mediaPlayer == null && binding.soundIb.isActivated) mediaPlayer =
@@ -81,7 +87,7 @@ class TimerFragment : Fragment() {
             setViewOnStart()
         }
         binding.timerBtnStop.setOnClickListener {
-            Log.i(mTAG, "-> Stop button is: Clicked")
+            Log.i(TAG, "-> Stop button is: Clicked")
             stopTimer()
             setViewOnStop()
         }
@@ -104,7 +110,7 @@ class TimerFragment : Fragment() {
         timePicker.setOnTimeChangedListener { _, hourOfDay, minute ->
 //            timerViewModel.setTime(getLong(hourOfDay, minute))
             if (isRunning == false) startTime = getLong(hourOfDay, minute)
-            Log.d(mTAG,"TimePicker: ${formatTime(startTime!!)}")
+            Log.d(TAG,"TimePicker: ${formatTime(startTime!!)}")
         }
         if (startTime == null) startTime = getLong(timePicker.hour, timePicker.minute)
 
@@ -128,13 +134,13 @@ class TimerFragment : Fragment() {
         if (timer == null){
         timer = object : CountDownTimer(startTime!!, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                Log.i(mTAG, "-> ${formatTime(millisUntilFinished)}")
+                Log.i(TAG, "-> ${formatTime(millisUntilFinished)}")
                 startTime = millisUntilFinished
                 timerTv.text = formatTime(millisUntilFinished)
             }
 
             override fun onFinish() {
-                Log.i(mTAG, "-> onFinish")
+                Log.i(TAG, "-> onFinish")
                 setTimerColor()
                 isRunning = false
                 //MediaPlayer if define -> start playing
@@ -144,7 +150,7 @@ class TimerFragment : Fragment() {
         }.start()
         isRunning = true
         } else {
-            Log.d(mTAG, "is Already running!")
+            Log.d(TAG, "is Already running!")
         }
     }
 
@@ -184,20 +190,20 @@ class TimerFragment : Fragment() {
 
         sharedPrefs = requireActivity().getSharedPreferences("prefs",Context.MODE_PRIVATE)
         binding.soundIb.isActivated = sharedPrefs!!.getBoolean("isSoundActive", true)
-        Log.i(mTAG, "Sound button is: ${binding.soundIb.isActivated}")
+        Log.i(TAG, "Sound button is: ${binding.soundIb.isActivated}")
         binding.soundIb.setOnClickListener {
             if (it.isActivated) {
                 Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
                 if (mediaPlayer == null) mediaPlayer = MediaPlayer.create(context, R.raw.ship_bell)
-                Log.i(mTAG, "Sound button is: ${it.isActivated}")
+                Log.i(TAG, "Sound button is: ${it.isActivated}")
                 it.isActivated = false
             } else {
                 mediaPlayer?.release()
                 mediaPlayer = null
                 it.isActivated = true
-                Log.i(mTAG, "Sound button is: ${it.isActivated}")
+                Log.i(TAG, "Sound button is: ${it.isActivated}")
             }
-            Log.i(mTAG, "${it.isActivated}")
+            Log.i(TAG, "${it.isActivated}")
         }
         if (mediaPlayer == null) {
             mediaPlayer = if (binding.soundIb.isActivated) {
@@ -212,7 +218,7 @@ class TimerFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onStart() {
         super.onStart()
-        Log.i(mTAG, "OnStart: -> lastTime: $startTime")
+        Log.i(TAG, "OnStart: -> lastTime: $startTime")
         sharedPrefs = requireActivity().getSharedPreferences("prefs",Context.MODE_PRIVATE)
         startTime = sharedPrefs!!.getLong("startTime", startTime ?: getLong(timePicker.hour,
             timePicker.minute))
@@ -234,13 +240,14 @@ class TimerFragment : Fragment() {
             }
         } else {
             startTime = getLong(timePicker.hour, timePicker.minute)
+            endTime = sharedPrefs!!.getLong("endTime", 0)
         }
     }
 
     override fun onStop() {
         super.onStop()
-        Log.i(mTAG, "-> onStop")
-        Log.i(mTAG, "-> lastTime: $startTime")
+        Log.i(TAG, "-> onStop")
+        Log.i(TAG, "-> lastTime: $startTime")
         isSoundActive = (isRunning == true)
         sharedPrefs = requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
         sharedPrefs!!.edit {
@@ -284,5 +291,14 @@ class TimerFragment : Fragment() {
 
     private fun initViews(){
         timerTv = binding.timerTv
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        val view = View.inflate(context,R.layout.fragment_timer, null)
+
+
+        return dialog
+
     }
 }

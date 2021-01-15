@@ -5,6 +5,6 @@
     <item
         android:id="@+id/action_timer"
         android:icon="@drawable/ic_timer_24"
-        app:showAsAction="ifRoom"
-        android:title="Timer" />
+        app:showAsAction="never"
+        android:title="@string/set_timer" />
 </menu>

@@ -9,4 +9,5 @@
     <string name="timer_off">Timer off</string>
     <string name="channel_name">Work timer</string>
     <string name="channel_desc">Timer for work</string>
+    <string name="set_timer">Set timer</string>
 </resources>
