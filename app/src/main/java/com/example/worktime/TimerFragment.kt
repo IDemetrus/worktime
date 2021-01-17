@@ -3,6 +3,7 @@ package com.example.worktime
 import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
@@ -28,6 +29,7 @@ import com.example.worktime.databinding.FragmentTimerBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -52,6 +54,7 @@ class TimerFragment : BottomSheetDialogFragment() {
         private lateinit var rootView: View
         private lateinit var timePicker: TimePicker
         private lateinit var timerTv: TextView
+        private lateinit var timerBottomTv: TextView
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -63,7 +66,7 @@ class TimerFragment : BottomSheetDialogFragment() {
         _binding = FragmentTimerBinding.inflate(inflater, container, false)
         rootView = binding.root
 
-        dialogFragment = TimerDialogFragment()
+//        dialogFragment = TimerDialogFragment()
 
         initViews()
 
@@ -79,7 +82,7 @@ class TimerFragment : BottomSheetDialogFragment() {
 
         binding.timerBtnStart.setOnClickListener {
             Log.i(TAG, "-> Start button is: Clicked")
-            dialogFragment.show(requireActivity().supportFragmentManager, dialogFragment.tag)
+//            dialogFragment.show(requireActivity().supportFragmentManager, dialogFragment.tag)
 
             if (mediaPlayer == null && binding.soundIb.isActivated) mediaPlayer =
                 MediaPlayer.create(context, R.raw.ship_bell)
@@ -173,7 +176,7 @@ class TimerFragment : BottomSheetDialogFragment() {
 
     private fun setViewOnStart() {
         binding.timerTv.visibility = View.VISIBLE
-        binding.timerTp.visibility = View.INVISIBLE
+        binding.timerTp.visibility = View.GONE
         binding.timerMinuteTv.visibility = View.GONE
         binding.timerHourTv.visibility = View.GONE
     }
@@ -291,14 +294,26 @@ class TimerFragment : BottomSheetDialogFragment() {
 
     private fun initViews(){
         timerTv = binding.timerTv
+        timerBottomTv = binding.timerBottomTv
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
         val view = View.inflate(context,R.layout.fragment_timer, null)
-
+        //TODO dialog at full height
 
         return dialog
 
+    }
+
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        Toast.makeText(context,"0:00",Toast.LENGTH_LONG).show()
+        //TODO display new bottom dialog
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        Toast.makeText(context,"Dismissed",Toast.LENGTH_LONG).show()
     }
 }
