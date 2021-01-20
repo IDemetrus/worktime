@@ -3,104 +3,101 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_timer_id"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:id="@+id/fragment_timer_bottom"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-    tools:context=".TimerFragment">
+    tools:context=".TimerFragment"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
 
 
-    <TextView
-        android:id="@+id/timerTv"
-        style="@style/TimerClockText"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_timer_root"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/timer_text"
-        app:layout_constraintBottom_toTopOf="@+id/timerBtnStart"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/timerBtnStart"
-        style="@style/TimerBtnStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="@string/start_btn"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/timerTv"
+            style="@style/TimerClockText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/timer_text"
+            app:layout_constraintBottom_toTopOf="@+id/timerBtnStart"
+            app:layout_constraintEnd_toStartOf="@+id/timerBtnStop"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/timerBtnStart"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/timerBtnStop"
-        style="@style/TimerBtnStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="@string/stop_btn"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <Button
+            android:id="@+id/timerBtnStart"
+            style="@style/TimerBtnStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/start_btn"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <TimePicker
-        android:id="@+id/timerTp"
-        style="@style/TimePicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:theme="@style/TimePicker"
-        android:timePickerMode="spinner"
-        app:layout_constraintBottom_toTopOf="@+id/timerBtnStart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <Button
+            android:id="@+id/timerBtnStop"
+            style="@style/TimerBtnStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/stop_btn"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    <ImageButton
-        android:id="@+id/soundIb"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#00FFFFFF"
-        android:src="@drawable/selector"
-        app:layout_constraintBottom_toBottomOf="@+id/timerBtnStop"
-        app:layout_constraintEnd_toStartOf="@+id/timerBtnStop"
-        app:layout_constraintStart_toEndOf="@+id/timerBtnStart"
-        app:layout_constraintTop_toTopOf="@+id/timerBtnStop" />
+        <TimePicker
+            android:id="@+id/timerTp"
+            style="@style/TimePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:theme="@style/TimePicker"
+            android:timePickerMode="spinner"
+            app:layout_constraintBottom_toTopOf="@+id/timerBtnStart"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/timerHourTv"
-        style="@style/TimerTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/timer_hour"
-        app:layout_constraintBottom_toBottomOf="@+id/timerTp"
-        app:layout_constraintEnd_toStartOf="@+id/timerTp"
-        app:layout_constraintTop_toTopOf="@+id/timerTp" />
+        <ImageButton
+            android:id="@+id/soundIb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#00FFFFFF"
+            android:src="@drawable/selector"
+            app:layout_constraintBottom_toBottomOf="@+id/timerBtnStop"
+            app:layout_constraintEnd_toStartOf="@+id/timerBtnStop"
+            app:layout_constraintStart_toEndOf="@+id/timerBtnStart"
+            app:layout_constraintTop_toTopOf="@+id/timerBtnStop" />
 
-    <TextView
-        android:id="@+id/timerMinuteTv"
-        style="@style/TimerTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/timer_minute"
-        app:layout_constraintBottom_toBottomOf="@+id/timerTp"
-        app:layout_constraintStart_toEndOf="@+id/timerTp"
-        app:layout_constraintTop_toTopOf="@+id/timerTp" />
+        <TextView
+            android:id="@+id/timerHourTv"
+            style="@style/TimerTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/timer_hour"
+            app:layout_constraintBottom_toBottomOf="@+id/timerTp"
+            app:layout_constraintEnd_toStartOf="@+id/timerTp"
+            app:layout_constraintTop_toTopOf="@+id/timerTp" />
 
-    <TextView
-        android:id="@+id/timer_bottom_tv"
-        android:layout_width="@dimen/button_size_90"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        android:gravity="center_horizontal"
-        style="@style/TimerClockBottom"
-        android:text="0:00"
-        tools:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/timerMinuteTv"
+            style="@style/TimerTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/timer_minute"
+            app:layout_constraintBottom_toBottomOf="@+id/timerTp"
+            app:layout_constraintStart_toEndOf="@+id/timerTp"
+            app:layout_constraintTop_toTopOf="@+id/timerTp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

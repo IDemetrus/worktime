@@ -1,5 +1,6 @@
 package com.example.worktime
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
@@ -7,6 +8,8 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.graphics.Color.GREEN
+import android.graphics.Color.green
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
@@ -19,17 +22,14 @@ import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainer
 import com.example.worktime.databinding.FragmentTimerBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.color.MaterialColors.getColor
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -40,13 +40,14 @@ class TimerFragment : BottomSheetDialogFragment() {
     companion object {
         private var _binding: FragmentTimerBinding? = null
         private val binding get() = _binding!!
-//        private lateinit var timerViewModel: TimerViewModel
+
+        //        private lateinit var timerViewModel: TimerViewModel
         private var timer: CountDownTimer? = null
         private var isRunning: Boolean? = null
         private var startTime: Long? = null
         private var endTime: Long? = null
         private var sharedPrefs: SharedPreferences? = null
-        private lateinit var dialogFragment: TimerDialogFragment
+        private lateinit var behavior: BottomSheetBehavior<View>
 
         private var notification: NotificationCompat.Builder? = null
         private var mediaPlayer: MediaPlayer? = null
@@ -54,7 +55,6 @@ class TimerFragment : BottomSheetDialogFragment() {
         private lateinit var rootView: View
         private lateinit var timePicker: TimePicker
         private lateinit var timerTv: TextView
-        private lateinit var timerBottomTv: TextView
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -65,8 +65,6 @@ class TimerFragment : BottomSheetDialogFragment() {
         // Inflate the layout for this fragment
         _binding = FragmentTimerBinding.inflate(inflater, container, false)
         rootView = binding.root
-
-//        dialogFragment = TimerDialogFragment()
 
         initViews()
 
@@ -82,7 +80,6 @@ class TimerFragment : BottomSheetDialogFragment() {
 
         binding.timerBtnStart.setOnClickListener {
             Log.i(TAG, "-> Start button is: Clicked")
-//            dialogFragment.show(requireActivity().supportFragmentManager, dialogFragment.tag)
 
             if (mediaPlayer == null && binding.soundIb.isActivated) mediaPlayer =
                 MediaPlayer.create(context, R.raw.ship_bell)
@@ -93,11 +90,21 @@ class TimerFragment : BottomSheetDialogFragment() {
             Log.i(TAG, "-> Stop button is: Clicked")
             stopTimer()
             setViewOnStop()
+            setDefaultDimens()
         }
 
         initNotification()
 
         return rootView
+    }
+
+    @SuppressLint("ResourceType")
+    private fun setDefaultDimens() {
+        binding.soundIb.visibility = View.VISIBLE
+        binding.timerTv.textSize = resources.getDimension(R.dimen.text_size_32)
+        binding.timerTv.setTextColor(resources.getColor(R.color.green_500))
+        binding.root.setBackgroundColor(Color.WHITE)
+        binding.timerBtnStart.visibility = View.VISIBLE
     }
 
     private fun pauseTimer() {
@@ -113,7 +120,7 @@ class TimerFragment : BottomSheetDialogFragment() {
         timePicker.setOnTimeChangedListener { _, hourOfDay, minute ->
 //            timerViewModel.setTime(getLong(hourOfDay, minute))
             if (isRunning == false) startTime = getLong(hourOfDay, minute)
-            Log.d(TAG,"TimePicker: ${formatTime(startTime!!)}")
+            Log.d(TAG, "TimePicker: ${formatTime(startTime!!)}")
         }
         if (startTime == null) startTime = getLong(timePicker.hour, timePicker.minute)
 
@@ -134,24 +141,24 @@ class TimerFragment : BottomSheetDialogFragment() {
 
     private fun startTimer() {
         endTime = System.currentTimeMillis() + startTime!!
-        if (timer == null){
-        timer = object : CountDownTimer(startTime!!, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                Log.i(TAG, "-> ${formatTime(millisUntilFinished)}")
-                startTime = millisUntilFinished
-                timerTv.text = formatTime(millisUntilFinished)
-            }
+        if (timer == null) {
+            timer = object : CountDownTimer(startTime!!, 1000) {
+                override fun onTick(millisUntilFinished: Long) {
+                    Log.i(TAG, "-> ${formatTime(millisUntilFinished)}")
+                    startTime = millisUntilFinished
+                    timerTv.text = formatTime(millisUntilFinished)
+                }
 
-            override fun onFinish() {
-                Log.i(TAG, "-> onFinish")
-                setTimerColor()
-                isRunning = false
-                //MediaPlayer if define -> start playing
+                override fun onFinish() {
+                    Log.i(TAG, "-> onFinish")
+                    setTimerColor()
+                    isRunning = false
+                    //MediaPlayer if define -> start playing
                     mediaPlayer?.isLooping = true
                     mediaPlayer?.start()
-            }
-        }.start()
-        isRunning = true
+                }
+            }.start()
+            isRunning = true
         } else {
             Log.d(TAG, "is Already running!")
         }
@@ -189,9 +196,9 @@ class TimerFragment : BottomSheetDialogFragment() {
 
     }
 
-    private fun setSoundBtn(){
+    private fun setSoundBtn() {
 
-        sharedPrefs = requireActivity().getSharedPreferences("prefs",Context.MODE_PRIVATE)
+        sharedPrefs = requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
         binding.soundIb.isActivated = sharedPrefs!!.getBoolean("isSoundActive", true)
         Log.i(TAG, "Sound button is: ${binding.soundIb.isActivated}")
         binding.soundIb.setOnClickListener {
@@ -222,9 +229,13 @@ class TimerFragment : BottomSheetDialogFragment() {
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "OnStart: -> lastTime: $startTime")
-        sharedPrefs = requireActivity().getSharedPreferences("prefs",Context.MODE_PRIVATE)
-        startTime = sharedPrefs!!.getLong("startTime", startTime ?: getLong(timePicker.hour,
-            timePicker.minute))
+        sharedPrefs = requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        startTime = sharedPrefs!!.getLong(
+            "startTime", startTime ?: getLong(
+                timePicker.hour,
+                timePicker.minute
+            )
+        )
         isRunning = sharedPrefs!!.getBoolean("isRunning", false)
 
         if (isRunning == true) {
@@ -234,7 +245,7 @@ class TimerFragment : BottomSheetDialogFragment() {
             //TODO: -> Fix timer onFinish from background
 //            if (lastTime > currentTime && lastTime > 0)
 //                lastTime -= currentTime
-            if (startTime!! < 0){
+            if (startTime!! < 0) {
                 startTime = 0
                 isRunning = false
             } else {
@@ -292,28 +303,34 @@ class TimerFragment : BottomSheetDialogFragment() {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
     }
 
-    private fun initViews(){
+    private fun initViews() {
         timerTv = binding.timerTv
-        timerBottomTv = binding.timerBottomTv
     }
 
+    @SuppressLint("ResourceType")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
-        val view = View.inflate(context,R.layout.fragment_timer, null)
-        //TODO dialog at full height
+        dialog.setOnShowListener {
+            val d = it as BottomSheetDialog
+            val sheet = d.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            behavior = BottomSheetBehavior.from(sheet as View)
+            if (isRunning==true){
+                setDimens()
+            }
+        }
+
 
         return dialog
 
     }
 
-    override fun onCancel(dialog: DialogInterface) {
-        super.onCancel(dialog)
-        Toast.makeText(context,"0:00",Toast.LENGTH_LONG).show()
-        //TODO display new bottom dialog
-    }
-
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        Toast.makeText(context,"Dismissed",Toast.LENGTH_LONG).show()
+    private fun setDimens() {
+        //TODO apply this to start button
+        binding.timerTv.setTextColor(Color.WHITE)
+        binding.timerTv.textSize = 24f
+        binding.soundIb.visibility = View.GONE
+        binding.root.setBackgroundColor(resources.getColor(R.color.green_500))
+        binding.timerBtnStart.visibility = View.GONE
+        behavior.isFitToContents = true
     }
 }
