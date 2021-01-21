@@ -85,6 +85,7 @@ class TimerFragment : BottomSheetDialogFragment() {
                 MediaPlayer.create(context, R.raw.ship_bell)
             if (isRunning == true) pauseTimer() else startTimer()
             setViewOnStart()
+            setDimens()
         }
         binding.timerBtnStop.setOnClickListener {
             Log.i(TAG, "-> Stop button is: Clicked")
@@ -295,6 +296,7 @@ class TimerFragment : BottomSheetDialogFragment() {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
+        //TODO fix notifications
         notification = NotificationCompat.Builder(requireContext(), "1")
             .setSmallIcon(R.drawable.ic_timer_24)
             .setAutoCancel(true)
@@ -319,13 +321,11 @@ class TimerFragment : BottomSheetDialogFragment() {
             }
         }
 
-
         return dialog
 
     }
 
     private fun setDimens() {
-        //TODO apply this to start button
         binding.timerTv.setTextColor(Color.WHITE)
         binding.timerTv.textSize = 24f
         binding.soundIb.visibility = View.GONE
